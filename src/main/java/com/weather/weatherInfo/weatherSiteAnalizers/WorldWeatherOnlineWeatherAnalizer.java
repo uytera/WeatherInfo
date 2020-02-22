@@ -1,5 +1,6 @@
 package com.weather.weatherInfo.weatherSiteAnalizers;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.weather.database.DBService;
 import com.weather.database.dataSet.CurrentWeatherInfo;
 import com.weather.weatherInfo.exeptions.WrongApiException;
@@ -8,23 +9,21 @@ import org.json.JSONObject;
 
 import java.util.Date;
 
-public class WeatherbitWeatherAnalizer extends WeatherSiteAnalizer {
+public class WorldWeatherOnlineWeatherAnalizer extends WeatherSiteAnalizer {
     private DBService dbService = new DBService();
 
-    private WeatherbitWeatherAnalizer(){
-    }
+    private WorldWeatherOnlineWeatherAnalizer(){}
 
-    public static WeatherbitWeatherAnalizer getWeatherbitWeatherAnalizer(String apiKey) throws WrongApiException, JSONException{
-        WeatherbitWeatherAnalizer currentAnalizer = new WeatherbitWeatherAnalizer();
+    public static WorldWeatherOnlineWeatherAnalizer getWorldWeatherOnlineWeatherAnalizer(String apiKey) throws WrongApiException, JSONException{
+        WorldWeatherOnlineWeatherAnalizer currentAnalizer = new WorldWeatherOnlineWeatherAnalizer();
         currentAnalizer.setApi(apiKey);
-        currentAnalizer.providerName = "weatherbit";
+        currentAnalizer.providerName = "worldWeatherOnline";
         return currentAnalizer;
     }
 
-
     @Override
     public void setApi(String apiKey) throws WrongApiException, JSONException {
-        JSONObject json = readJsonFromUrl("https://api.weatherbit.io/v2.0/current?city=Moscow&key=" + apiKey);
+        JSONObject json = readJsonFromUrl("http://api.worldweatheronline.com/premium/v1/weather.ashx?key=" + apiKey + "&q=Chelyabinsk&format=json&extra=localObsTime");
         if(json == null){
             throw new WrongApiException();
         }
@@ -33,19 +32,19 @@ public class WeatherbitWeatherAnalizer extends WeatherSiteAnalizer {
     }
 
     @Override
-    public CurrentWeatherInfo getWeatherFromCity(String cityName) throws JSONException{
+    public CurrentWeatherInfo getWeatherFromCity(String cityName) throws JSONException {
         CurrentWeatherInfo currentWeatherInfo = getWeatherFromChache(cityName);
 
         if(currentWeatherInfo != null) {
             return currentWeatherInfo;
         }
-        //System.out.println("https://api.weatherbit.io/v2.0/current?city="+ cityName +"&key=" + apiKey);
-        JSONObject json = readJsonFromUrl("https://api.weatherbit.io/v2.0/current?city="+ cityName +"&key=" + apiKey);
-        JSONObject currentWeatherJson = json.getJSONArray("data").getJSONObject(0);
+        //System.out.println("https://api.weatherbit.io/v2.0/current?city="+ cityName +"&key=" + apiKey);     http://api.worldweatheronline.com/premium/v1/weather.ashx?key=ed13eb9cd3af45e9a25111238202202&q=Chelyabinsk&format=json&extra=localObsTime
+        JSONObject json = readJsonFromUrl("http://api.worldweatheronline.com/premium/v1/weather.ashx?key=" + apiKey + "&q=" + cityName + "&format=json&extra=localObsTime");
+        JSONObject currentWeatherJson = json.getJSONObject("data").getJSONArray("current_condition").getJSONObject(0);
 
         currentWeatherInfo = new CurrentWeatherInfo(getProviderName(), cityName,
-                Float.parseFloat(currentWeatherJson.get("temp").toString()),
-                Float.parseFloat(currentWeatherJson.get("wind_spd").toString())
+                Float.parseFloat(currentWeatherJson.getString("temp_C")),
+                Float.parseFloat(currentWeatherJson.getString("windspeedKmph"))/3600*1000
         );
 
         pushWeatherIntoBase(currentWeatherInfo);

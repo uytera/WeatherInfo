@@ -19,7 +19,7 @@ public abstract class WeatherSiteAnalizer {
         return providerName;
     }
 
-    public abstract void setApi(String apiKey) throws WrongApiException;
+    public abstract void setApi(String apiKey) throws WrongApiException, JSONException;
 
     public String getApi(){
         return apiKey;
@@ -42,7 +42,7 @@ public abstract class WeatherSiteAnalizer {
         return stringBuilder.toString();
     }
 
-    protected static JSONObject readJsonFromUrl(String url){
+    protected static JSONObject readJsonFromUrl(String url) throws JSONException{
         JSONObject json = null;
 
         try(InputStream inputStream = new URL(url).openStream()) {
@@ -53,14 +53,14 @@ public abstract class WeatherSiteAnalizer {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         return json;
     }
 
-    public abstract CurrentWeatherInfo getWeatherFromCity(String cityName);
+    public abstract CurrentWeatherInfo getWeatherFromCity(String cityName) throws JSONException;
+
+    protected abstract CurrentWeatherInfo getWeatherFromChache(String cityName);
 
     protected abstract void pushWeatherIntoBase(String provider, String city, float temp, float speedOfWind);
 
@@ -69,4 +69,5 @@ public abstract class WeatherSiteAnalizer {
     protected abstract CurrentWeatherInfo getWeatherFromBase(String provider, String city);
 
     protected abstract void deleteWeatherFromBase(CurrentWeatherInfo currentWeatherInfo);
+
 }

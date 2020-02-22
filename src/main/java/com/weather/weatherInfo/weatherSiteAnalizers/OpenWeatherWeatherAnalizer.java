@@ -8,23 +8,19 @@ import org.json.JSONObject;
 
 import java.util.Date;
 
-public class WeatherbitWeatherAnalizer extends WeatherSiteAnalizer {
+public class OpenWeatherWeatherAnalizer extends WeatherSiteAnalizer {
     private DBService dbService = new DBService();
+    private OpenWeatherWeatherAnalizer(){}
 
-    private WeatherbitWeatherAnalizer(){
-    }
-
-    public static WeatherbitWeatherAnalizer getWeatherbitWeatherAnalizer(String apiKey) throws WrongApiException, JSONException{
-        WeatherbitWeatherAnalizer currentAnalizer = new WeatherbitWeatherAnalizer();
+    public static OpenWeatherWeatherAnalizer getOpenWeatherWeatherAnalizer(String apiKey) throws WrongApiException, JSONException{
+        OpenWeatherWeatherAnalizer currentAnalizer = new OpenWeatherWeatherAnalizer();
         currentAnalizer.setApi(apiKey);
-        currentAnalizer.providerName = "weatherbit";
+        currentAnalizer.providerName = "openWeather";
         return currentAnalizer;
     }
-
-
     @Override
     public void setApi(String apiKey) throws WrongApiException, JSONException {
-        JSONObject json = readJsonFromUrl("https://api.weatherbit.io/v2.0/current?city=Moscow&key=" + apiKey);
+        JSONObject json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?q=Moskou&appid=" + apiKey + "&units=metric");
         if(json == null){
             throw new WrongApiException();
         }
@@ -33,19 +29,18 @@ public class WeatherbitWeatherAnalizer extends WeatherSiteAnalizer {
     }
 
     @Override
-    public CurrentWeatherInfo getWeatherFromCity(String cityName) throws JSONException{
+    public CurrentWeatherInfo getWeatherFromCity(String cityName) throws JSONException {
         CurrentWeatherInfo currentWeatherInfo = getWeatherFromChache(cityName);
 
         if(currentWeatherInfo != null) {
             return currentWeatherInfo;
         }
-        //System.out.println("https://api.weatherbit.io/v2.0/current?city="+ cityName +"&key=" + apiKey);
-        JSONObject json = readJsonFromUrl("https://api.weatherbit.io/v2.0/current?city="+ cityName +"&key=" + apiKey);
-        JSONObject currentWeatherJson = json.getJSONArray("data").getJSONObject(0);
+        System.out.println("http://api.openweathermap.org/data/2.5/weather?q=" + cityName +"&appid=" + apiKey);
+        JSONObject json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?q=" + cityName +"&appid=" + apiKey + "&units=metric");
 
         currentWeatherInfo = new CurrentWeatherInfo(getProviderName(), cityName,
-                Float.parseFloat(currentWeatherJson.get("temp").toString()),
-                Float.parseFloat(currentWeatherJson.get("wind_spd").toString())
+                (float) json.getJSONObject("main").getDouble("temp"),
+                (float) json.getJSONObject("wind").getInt("speed")
         );
 
         pushWeatherIntoBase(currentWeatherInfo);

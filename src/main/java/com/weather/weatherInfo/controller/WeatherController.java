@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-//import org.springframework.web.bind.annotation.RestController;
-
 @Controller
-public class WeatherController {
+public final class WeatherController {
     @Autowired
     WeatherService weatherService;
 
@@ -25,10 +23,10 @@ public class WeatherController {
         try {
             weatherJson = weatherService.getWeatherJson(serviceName, city);
         }
-        catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        catch (Exception e) {
+            return new ResponseEntity<>("Server error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return ResponseEntity.ok(weatherJson);
+        return new ResponseEntity<>(weatherJson.toString(), HttpStatus.OK);
     }
 
     @RequestMapping(path = "/weatherService/setChacheTime", method = RequestMethod.POST)
