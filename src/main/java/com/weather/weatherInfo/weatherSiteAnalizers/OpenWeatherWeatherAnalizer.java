@@ -3,6 +3,7 @@ package com.weather.weatherInfo.weatherSiteAnalizers;
 import com.weather.database.DBService;
 import com.weather.database.dataSet.CurrentWeatherInfo;
 import com.weather.weatherInfo.exeptions.WrongApiException;
+import com.weather.weatherInfo.exeptions.WrongCityException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,7 +21,12 @@ public class OpenWeatherWeatherAnalizer extends WeatherSiteAnalizer {
     }
     @Override
     public void setApi(String apiKey) throws WrongApiException, JSONException {
-        JSONObject json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?q=Moskou&appid=" + apiKey + "&units=metric");
+        JSONObject json = null;
+        try {
+            json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?q=Moskou&appid=" + apiKey + "&units=metric");
+        } catch (WrongCityException e) {
+            e.printStackTrace();
+        }
         if(json == null){
             throw new WrongApiException();
         }
@@ -29,14 +35,15 @@ public class OpenWeatherWeatherAnalizer extends WeatherSiteAnalizer {
     }
 
     @Override
-    public CurrentWeatherInfo getWeatherFromCity(String cityName) throws JSONException {
+    public CurrentWeatherInfo getWeatherFromCity(String cityName) throws WrongCityException, JSONException {
         CurrentWeatherInfo currentWeatherInfo = getWeatherFromChache(cityName);
 
         if(currentWeatherInfo != null) {
             return currentWeatherInfo;
         }
         System.out.println("http://api.openweathermap.org/data/2.5/weather?q=" + cityName +"&appid=" + apiKey);
-        JSONObject json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?q=" + cityName +"&appid=" + apiKey + "&units=metric");
+        JSONObject json = null;
+        json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?q=" + cityName +"&appid=" + apiKey + "&units=metric");
 
         currentWeatherInfo = new CurrentWeatherInfo(getProviderName(), cityName,
                 (float) json.getJSONObject("main").getDouble("temp"),

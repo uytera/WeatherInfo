@@ -3,6 +3,7 @@ package com.weather.weatherInfo.weatherSiteAnalizers;
 import com.weather.database.DBService;
 import com.weather.database.dataSet.CurrentWeatherInfo;
 import com.weather.weatherInfo.exeptions.WrongApiException;
+import com.weather.weatherInfo.exeptions.WrongCityException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,7 +25,12 @@ public class WeatherbitWeatherAnalizer extends WeatherSiteAnalizer {
 
     @Override
     public void setApi(String apiKey) throws WrongApiException, JSONException {
-        JSONObject json = readJsonFromUrl("https://api.weatherbit.io/v2.0/current?city=Moscow&key=" + apiKey);
+        JSONObject json = null;
+        try {
+            json = readJsonFromUrl("https://api.weatherbit.io/v2.0/current?city=Moscow&key=" + apiKey);
+        } catch (WrongCityException e) {
+            e.printStackTrace();
+        }
         if(json == null){
             throw new WrongApiException();
         }
@@ -33,13 +39,13 @@ public class WeatherbitWeatherAnalizer extends WeatherSiteAnalizer {
     }
 
     @Override
-    public CurrentWeatherInfo getWeatherFromCity(String cityName) throws JSONException{
+    public CurrentWeatherInfo getWeatherFromCity(String cityName) throws WrongCityException, JSONException{
         CurrentWeatherInfo currentWeatherInfo = getWeatherFromChache(cityName);
 
         if(currentWeatherInfo != null) {
             return currentWeatherInfo;
         }
-        //System.out.println("https://api.weatherbit.io/v2.0/current?city="+ cityName +"&key=" + apiKey);
+        System.out.println("https://api.weatherbit.io/v2.0/current?city="+ cityName +"&key=" + apiKey);
         JSONObject json = readJsonFromUrl("https://api.weatherbit.io/v2.0/current?city="+ cityName +"&key=" + apiKey);
         JSONObject currentWeatherJson = json.getJSONArray("data").getJSONObject(0);
 

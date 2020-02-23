@@ -2,6 +2,7 @@ package com.weather.weatherInfo.weatherSiteAnalizers;
 
 import com.weather.weatherInfo.exeptions.WrongApiException;
 import com.weather.database.dataSet.CurrentWeatherInfo;
+import com.weather.weatherInfo.exeptions.WrongCityException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,7 +20,7 @@ public abstract class WeatherSiteAnalizer {
         return providerName;
     }
 
-    public abstract void setApi(String apiKey) throws WrongApiException, JSONException;
+    public abstract void setApi(String apiKey) throws WrongApiException, JSONException, WrongCityException;
 
     public String getApi(){
         return apiKey;
@@ -42,7 +43,7 @@ public abstract class WeatherSiteAnalizer {
         return stringBuilder.toString();
     }
 
-    protected static JSONObject readJsonFromUrl(String url) throws JSONException{
+    protected static JSONObject readJsonFromUrl(String url) throws JSONException, WrongCityException {
         JSONObject json = null;
 
         try(InputStream inputStream = new URL(url).openStream()) {
@@ -50,15 +51,15 @@ public abstract class WeatherSiteAnalizer {
             String jsonText = readAll(bufferedReader);
             json = new JSONObject(jsonText);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            throw new WrongCityException();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new WrongCityException();
         }
 
         return json;
     }
 
-    public abstract CurrentWeatherInfo getWeatherFromCity(String cityName) throws JSONException;
+    public abstract CurrentWeatherInfo getWeatherFromCity(String cityName) throws JSONException, WrongCityException;
 
     protected abstract CurrentWeatherInfo getWeatherFromChache(String cityName);
 

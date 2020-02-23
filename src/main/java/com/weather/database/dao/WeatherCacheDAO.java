@@ -4,7 +4,6 @@ import com.weather.database.dataSet.CurrentWeatherInfo;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 public class WeatherCacheDAO {

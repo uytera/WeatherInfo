@@ -2,6 +2,8 @@ package com.weather.weatherInfo.service;
 
 import com.weather.database.dataSet.CurrentWeatherInfo;
 import com.weather.weatherInfo.exeptions.WrongApiException;
+import com.weather.weatherInfo.exeptions.WrongCityException;
+import com.weather.weatherInfo.exeptions.WrongProviderException;
 import com.weather.weatherInfo.weatherSiteAnalizers.OpenWeatherWeatherAnalizer;
 import com.weather.weatherInfo.weatherSiteAnalizers.WeatherSiteAnalizer;
 import com.weather.weatherInfo.weatherSiteAnalizers.WeatherbitWeatherAnalizer;
@@ -38,10 +40,17 @@ public final class WeatherService {
         }
     }
 
-    public JSONObject getWeatherJson(String serviceName, String city) throws JSONException{
+    public JSONObject getWeatherJson(String serviceName, String city) throws JSONException, WrongProviderException, WrongCityException {
         DecimalFormat decimalFormat = new DecimalFormat("###.###");
         JSONObject weatherJson = new JSONObject();
-        WeatherSiteAnalizer analizer = analizers.get(serviceName);
+        WeatherSiteAnalizer analizer = null;
+        if(analizers.containsKey(serviceName)) {
+            analizer = analizers.get(serviceName);
+        }
+        else {
+            throw new WrongProviderException();
+        }
+
         CurrentWeatherInfo currentWeatherInfo = analizer.getWeatherFromCity(city);
 
         weatherJson.put("provider", analizer.getProviderName());
