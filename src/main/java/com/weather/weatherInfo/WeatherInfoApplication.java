@@ -11,6 +11,7 @@ public class WeatherInfoApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(WeatherInfoApplication.class, args);
+		//http://localhost:8080/weatherService/getWeather?serviceName=bit&city=Paris
 	}
 
 }
