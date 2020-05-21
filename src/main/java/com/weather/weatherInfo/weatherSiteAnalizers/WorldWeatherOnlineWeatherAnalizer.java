@@ -26,7 +26,7 @@ public class WorldWeatherOnlineWeatherAnalizer extends WeatherSiteAnalizer {
     public void setApi(String apiKey) throws WrongApiException, JSONException {
         JSONObject json = null;
         try {
-            json = readJsonFromUrl("http://api.worldweatheronline.com/premium/v1/weather.ashx?key=" + apiKey + "&q=Chelyabinsk&format=json&extra=localObsTime");
+            json = readJsonFromUrl("http://api.worldweatheronline.com/premium/v1/weather.ashx?key=" + apiKey + "&q=Paris&format=json&extra=localObsTime");
         } catch (WrongCityException e) {
             e.printStackTrace();
         }

@@ -2,6 +2,7 @@ package com.weather.weatherInfo.controller;
 
 import com.weather.weatherInfo.exeptions.WrongCityException;
 import com.weather.weatherInfo.exeptions.WrongProviderException;
+import com.weather.weatherInfo.model.WeatherModel;
 import com.weather.weatherInfo.service.WeatherService;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,35 +24,36 @@ public final class WeatherController {
     @ResponseBody
     public ResponseEntity<Object> getWeather(@ModelAttribute("serviceName") String serviceName, @ModelAttribute("city") String city){
         JSONObject errorJson = new JSONObject();
-        JSONObject weatherJson = null;
+        WeatherModel weatherJson = null;
         try {
             weatherJson = weatherService.getWeatherJson(serviceName, city);
         }
         catch (WrongCityException | JSONException e) {
-            try {
-                errorJson.put("error", "wrong city");
-            } catch (JSONException e1) {
-                return new ResponseEntity<>("Server error", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            return new ResponseEntity<>(errorJson.toString(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Error("wrong city"), HttpStatus.BAD_REQUEST);
         }
         catch (WrongProviderException e) {
-            try {
-                errorJson.put("error", "wrong provider");
-            } catch (JSONException e1) {
-                return new ResponseEntity<>("Server error", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            return new ResponseEntity<>(errorJson.toString(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Error("wrong provider"), HttpStatus.BAD_REQUEST);
         }
         catch (Exception e) {
-            return new ResponseEntity<>("Server error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new Error("Server error"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(weatherJson.toString(), HttpStatus.OK);
+        return new ResponseEntity<>(weatherJson, HttpStatus.OK);
     }
 
     @RequestMapping(path = "/weatherService/setChacheTime", method = RequestMethod.POST)
     public String setChache(@ModelAttribute("time") String text){
         weatherService.setChacheTime(Integer.parseInt(text));
         return "redirect:/weatherService/";
+    }
+
+    class Error{
+        private String error;
+
+        Error(String error){
+            this.error = error;
+        }
+
+        public String getError() { return error; }
+        public void setError(String error){ this.error = error; }
     }
 }

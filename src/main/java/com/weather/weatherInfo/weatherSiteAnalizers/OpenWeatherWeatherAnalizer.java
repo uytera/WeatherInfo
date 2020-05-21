@@ -23,7 +23,7 @@ public class OpenWeatherWeatherAnalizer extends WeatherSiteAnalizer {
     public void setApi(String apiKey) throws WrongApiException, JSONException {
         JSONObject json = null;
         try {
-            json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?q=Moskou&appid=" + apiKey + "&units=metric");
+            json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?q=Paris&appid=" + apiKey + "&units=metric");
         } catch (WrongCityException e) {
             e.printStackTrace();
         }

@@ -27,7 +27,7 @@ public class WeatherbitWeatherAnalizer extends WeatherSiteAnalizer {
     public void setApi(String apiKey) throws WrongApiException, JSONException {
         JSONObject json = null;
         try {
-            json = readJsonFromUrl("https://api.weatherbit.io/v2.0/current?city=Moscow&key=" + apiKey);
+            json = readJsonFromUrl("https://api.weatherbit.io/v2.0/current?city=Paris&key=" + apiKey);
         } catch (WrongCityException e) {
             e.printStackTrace();
         }
